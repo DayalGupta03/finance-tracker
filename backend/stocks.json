@@ -1,0 +1,22 @@
+[
+  {
+    "symbol": "NVDA",
+    "qty": 45,
+    "buyPrice": 30
+  },
+  {
+    "symbol": "TCS.NS",
+    "qty": 6,
+    "buyPrice": 200
+  },
+  {
+    "symbol": "ZOMATO.NS",
+    "qty": 4,
+    "buyPrice": 232
+  },
+  {
+    "symbol": "RELIANCE.NS",
+    "qty": 20,
+    "buyPrice": 200
+  }
+]

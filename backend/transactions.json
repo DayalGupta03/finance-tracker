@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1753105216152,
+    "amount": 500,
+    "type": "income",
+    "category": "Misc",
+    "date": "2025-07-17",
+    "description": "salary",
+    "created_at": "2025-07-21T13:40:16.152Z",
+    "updated_at": "2025-07-21T13:40:27.296Z"
+  },
+  {
+    "id": 1753117794390,
+    "amount": 15000,
+    "type": "income",
+    "category": "income",
+    "date": "2025-07-21",
+    "description": "profit",
+    "created_at": "2025-07-21T17:09:54.390Z"
+  },
+  {
+    "id": 1753119609542,
+    "amount": 1233,
+    "type": "expense",
+    "category": "cloth",
+    "date": "2025-07-20",
+    "description": "clothes",
+    "created_at": "2025-07-21T17:40:09.542Z"
+  },
+  {
+    "id": 1753171579864,
+    "amount": 2000,
+    "type": "expense",
+    "category": "fuel",
+    "date": "2025-07-21",
+    "description": "fuel ",
+    "created_at": "2025-07-22T08:06:19.864Z"
+  },
+  {
+    "id": 1753376075351,
+    "amount": 1222,
+    "type": "expense",
+    "category": "Toys",
+    "date": "2025-07-23",
+    "description": "Fun",
+    "created_at": "2025-07-24T16:54:35.351Z"
+  },
+  {
+    "id": 1753430684821,
+    "amount": 1200,
+    "type": "expense",
+    "category": "Misc",
+    "date": "2025-07-24",
+    "description": "food",
+    "created_at": "2025-07-25T08:04:44.821Z"
+  }
+]

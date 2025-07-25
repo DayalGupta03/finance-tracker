@@ -1,0 +1,111 @@
+:root {
+    --plgreen: #17bd66;
+    --plred: #e74c3c;
+    --card-bg: rgba(255,255,255,0.92);
+    --faint-border: #e0e3f1;
+    --btn-grad: linear-gradient(90deg,#a6c0fe,#f68084 60%);
+  }
+  
+  /* Animated gradient background */
+  .stock-page-bg {
+    min-height: 100vh;
+    padding: 40px 0;
+    background: linear-gradient(135deg, #0f2027 0%, #2c5364 100%);
+  }
+  
+  .stock-card-outer {
+    max-width: 1020px;
+    margin: auto;
+    box-shadow: 0 3px 30px 2px #0002;
+    padding: 2rem 2.5vw 3rem 2.5vw;
+    border-radius: 30px;
+    background: var(--card-bg);
+    animation: fade-in-bg 1s;
+  }
+  
+  h2, h3 { text-align: center; margin-bottom: 1.4rem; }
+  
+  .stock-table {
+    width: 100%;
+    border-collapse:separate;
+    border-spacing:0 2px;
+    font-size:1.1rem;
+    background: transparent;
+    margin-bottom: 2.5rem;
+    overflow: hidden;
+  }
+  
+  .stock-table th, .stock-table td {
+    padding: .7rem .6rem;
+    border-bottom: 1px solid var(--faint-border);
+    text-align: center;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  
+  .stock-table tr.fade-in-row { animation: fade-in-up-row .9s both; }
+  .stock-table tbody tr:hover { 
+    background: linear-gradient(90deg,#e3ffe8 0,#eeeeff 100%);
+    box-shadow: 0 1px 12px #0001; 
+  }
+  
+  input[type='number'] {
+    padding: 2px 8px;
+    border-radius: 5px;
+    border: 1px solid #bfc8cf;
+    font-size: 1em;
+    transition: border 0.2s, box-shadow 0.2s;
+  }
+  input[type='number']:focus { border:2px solid #5b8cff; box-shadow:0 0 3px #85aaff77; }
+  
+  .btn-anim {
+    background: var(--btn-grad);
+    border: none;
+    color: white;
+    padding: 4px 16px;
+    margin: 0 3px;
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow:0 2px 7px #eee4;
+    transition: transform .09s, background 0.29s;
+    outline:none;
+  }
+  .btn-anim:hover, .btn-anim:focus {
+    transform: translateY(-2px) scale(1.06);
+    background: linear-gradient(90deg,#f68084 0,#a6c0fe 100%);
+  }
+  
+  .piechart-wrap {
+    background: #fafdffcc;
+    border-radius: 30px;
+    max-width: 440px;
+    margin: 2.4rem auto 0;
+    box-shadow: 0 2px 18px #2490ff22;
+    padding: 2rem 1rem;
+  }
+  
+  .fade-in { animation: fade-in-bg 1.1s; }
+  .fade-in-up { animation: fade-in-up-row 1.25s; }
+  
+  @keyframes fade-in-bg { from { opacity: 0; transform:scale(0.98);} to { opacity: 1; transform:scale(1);} }
+  @keyframes fade-in-up-row { from { opacity:0; transform:translateY(28px);} to { opacity:1; transform:translateY(0);} }
+  
+  .shimmer {
+    background: linear-gradient(
+      120deg,
+      #eef1f8 0%,
+      #f3eeff 33%,
+      #f8f6fd 55%,
+      #eef1f8 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite ease-in;
+  }
+  
+  @keyframes shimmer {
+    0%  { background-position:200% 0;}
+    100%{ background-position:-200% 0;}
+  }
+  

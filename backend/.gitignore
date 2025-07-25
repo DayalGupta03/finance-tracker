@@ -1,0 +1,11 @@
+# Node
+node_modules/
+npm-debug.log*
+.yarn/
+dist/
+
+# Environment / secrets
+.env
+
+# macOS
+.DS_Store
