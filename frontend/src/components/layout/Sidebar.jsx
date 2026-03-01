@@ -9,6 +9,7 @@ const navItems = [
     { path: '/analytics', label: 'Analytics', icon: '📈' },
     { path: '/budgets', label: 'Budgets', icon: '🎯' },
     { path: '/stocks', label: 'Stocks', icon: '📉' },
+    { path: '/loans', label: 'Loans', icon: '🤝' },
 ];
 
 export default function Sidebar() {

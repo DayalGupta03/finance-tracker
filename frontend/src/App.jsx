@@ -14,6 +14,7 @@ import Analytics from './components/Analytics';
 import TimeAnalysis from './components/TimeAnalysis';
 import Budgets from './components/Budgets';
 import StockList from './components/StockList';
+import Loans from './components/Loans';
 
 function ScrollProgressBar() {
   const progress = useScrollProgress();
@@ -56,6 +57,7 @@ function AppRoutes() {
                   <Route path="/time-analysis" element={<TimeAnalysis />} />
                   <Route path="/budgets" element={<Budgets />} />
                   <Route path="/stocks" element={<StockList />} />
+                  <Route path="/loans" element={<Loans />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>

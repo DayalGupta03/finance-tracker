@@ -71,6 +71,20 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_txn_category ON transactions(category);
   CREATE INDEX IF NOT EXISTS idx_budgets_user ON budgets(user_id);
   CREATE INDEX IF NOT EXISTS idx_stocks_user ON stocks(user_id);
+
+  CREATE TABLE IF NOT EXISTS loans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    borrower_name TEXT NOT NULL,
+    amount REAL NOT NULL,
+    date TEXT NOT NULL,
+    note TEXT DEFAULT '',
+    is_repaid INTEGER DEFAULT 0,
+    repaid_date TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_loans_user ON loans(user_id);
 `);
 
 // ── Migration: add OTP columns to existing users table ──

@@ -14,6 +14,7 @@ const authRoutes = require('./routes/auth');
 const transactionRoutes = require('./routes/transactions');
 const budgetRoutes = require('./routes/budgets');
 const stockRoutes = require('./routes/stocks');
+const loanRoutes = require('./routes/loans');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -32,10 +33,18 @@ app.use('/api/auth', authRoutes);
 app.use('/api/transactions', auth, transactionRoutes);
 app.use('/api/budgets', auth, budgetRoutes);
 app.use('/api/stocks', auth, stockRoutes);
+app.use('/api/loans', auth, loanRoutes);
 
 // ── Health check ────────────────────────────────────────
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ── Serve Frontend in Production ────────────────────────
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // ── Global error handler ────────────────────────────────

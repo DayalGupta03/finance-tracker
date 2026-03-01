@@ -65,4 +65,12 @@ export const getStockPrices = (symbols) => api.post('/api/stocks/prices', { symb
 export const searchStocks = (query) => api.get('/api/stocks/search', { params: { q: query } });
 export const getStockQuote = (symbol) => api.get(`/api/stocks/quote/${symbol}`);
 
+// ── Loan API ────────────────────────────────────────────
+export const fetchLoans = () => api.get('/api/loans');
+export const fetchLoanSummary = () => api.get('/api/loans/summary');
+export const addLoan = (data) => api.post('/api/loans', data);
+export const updateLoan = (id, data) => api.put(`/api/loans/${id}`, data);
+export const deleteLoan = (id) => api.delete(`/api/loans/${id}`);
+export const markLoanRepaid = (id, data) => api.patch(`/api/loans/${id}/repaid`, data);
+
 export default api;
