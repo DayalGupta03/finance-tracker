@@ -1,11 +1,4 @@
-# Node
 node_modules/
-npm-debug.log*
-.yarn/
-dist/
-
-# Environment / secrets
+data/
 .env
-
-# macOS
 .DS_Store

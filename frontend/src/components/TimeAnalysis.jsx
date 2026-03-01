@@ -2,256 +2,144 @@ import { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
+  CategoryScale, LinearScale, PointElement,
+  LineElement, Title, Tooltip, Legend, Filler
 } from 'chart.js';
 import { fetchTxns } from '../api';
+import { useTheme } from '../context/ThemeContext';
+import { useScrollReveal } from '../hooks/useScrollEffects';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 export default function TimeAnalysis() {
+  const { theme } = useTheme();
   const [txns, setTxns] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('weekly');
+  const [activeTab, setActiveTab] = useState('monthly');
+  const chartReveal = useScrollReveal({ threshold: 0.05 });
+
+  const isDark = theme === 'dark';
+  const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const tickColor = isDark ? '#64748b' : '#94a3b8';
+  const legendColor = isDark ? '#94a3b8' : '#64748b';
 
   useEffect(() => {
-    fetchTxns().then(res => {
-      setTxns(res.data.filter(t => t.type === 'expense'));
-      setLoading(false);
-    }).catch(err => {
-      console.error('Error loading transactions:', err);
-      setLoading(false);
-    });
+    fetchTxns().then(res => { setTxns(res.data); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  // Group expenses by time period
-  const groupExpensesByPeriod = (period) => {
-    const grouped = {};
-    const now = new Date();
-    
+  const groupByPeriod = (period) => {
+    const incomeMap = {}, expenseMap = {};
     txns.forEach(txn => {
-      const txnDate = new Date(txn.date);
+      const d = new Date(txn.date);
       let key;
-      
       if (period === 'weekly') {
-        const weekStart = new Date(txnDate);
-        weekStart.setDate(txnDate.getDate() - txnDate.getDay());
-        key = weekStart.toISOString().split('T')[0];
+        const ws = new Date(d); ws.setDate(d.getDate() - d.getDay());
+        key = ws.toISOString().split('T')[0];
       } else if (period === 'monthly') {
-        key = `${txnDate.getFullYear()}-${String(txnDate.getMonth() + 1).padStart(2, '0')}`;
-      } else if (period === 'yearly') {
-        key = txnDate.getFullYear().toString();
-      }
-      
-      grouped[key] = (grouped[key] || 0) + Number(txn.amount);
+        key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      } else { key = d.getFullYear().toString(); }
+      if (txn.type === 'income') incomeMap[key] = (incomeMap[key] || 0) + txn.amount;
+      else expenseMap[key] = (expenseMap[key] || 0) + txn.amount;
     });
-    
-    return grouped;
+    const allKeys = [...new Set([...Object.keys(incomeMap), ...Object.keys(expenseMap)])].sort();
+    return { allKeys, incomeMap, expenseMap };
   };
 
-  // Generate chart data
-  const getChartData = (period) => {
-    const groupedData = groupExpensesByPeriod(period);
-    const sortedKeys = Object.keys(groupedData).sort();
-    
-    let labels, displayLabels;
-    
-    if (period === 'weekly') {
-      labels = sortedKeys;
-      displayLabels = sortedKeys.map(date => {
-        const d = new Date(date);
-        return `Week ${d.toLocaleDateString()}`;
-      });
-    } else if (period === 'monthly') {
-      labels = sortedKeys;
-      displayLabels = sortedKeys.map(month => {
-        const [year, monthNum] = month.split('-');
-        const monthName = new Date(year, monthNum - 1).toLocaleDateString('default', { month: 'long', year: 'numeric' });
-        return monthName;
-      });
-    } else {
-      labels = sortedKeys;
-      displayLabels = labels;
-    }
-
-    return {
-      labels: displayLabels,
-      datasets: [
-        {
-          label: `${period.charAt(0).toUpperCase() + period.slice(1)} Expenses`,
-          data: labels.map(key => groupedData[key] || 0),
-          borderColor: 'rgb(255, 99, 132)',
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          tension: 0.1,
-          fill: true,
-        },
-      ],
-    };
+  const formatLabel = (key, period) => {
+    if (period === 'monthly') { const [y, m] = key.split('-'); return new Date(y, m - 1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' }); }
+    if (period === 'weekly') return `W/o ${new Date(key).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    return key;
   };
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
+  const { allKeys, incomeMap, expenseMap } = groupByPeriod(activeTab);
+
+  const chartData = {
+    labels: allKeys.map(k => formatLabel(k, activeTab)),
+    datasets: [
+      {
+        label: 'Income',
+        data: allKeys.map(k => incomeMap[k] || 0),
+        borderColor: isDark ? '#34d399' : '#059669',
+        backgroundColor: isDark ? 'rgba(52, 211, 153, 0.08)' : 'rgba(5, 150, 105, 0.06)',
+        tension: 0.35, fill: true, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2,
       },
-      title: {
-        display: true,
-        text: `${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Expense Analysis`,
+      {
+        label: 'Expenses',
+        data: allKeys.map(k => expenseMap[k] || 0),
+        borderColor: isDark ? '#f87171' : '#dc2626',
+        backgroundColor: isDark ? 'rgba(248, 113, 113, 0.08)' : 'rgba(220, 38, 38, 0.06)',
+        tension: 0.35, fill: true, pointRadius: 3, pointHoverRadius: 5, borderWidth: 2,
       },
-      tooltip: {
-        callbacks: {
-          label: function(context) {
-            return `Expenses: ₹${context.parsed.y.toFixed(2)}`;
-          }
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: function(value) {
-            return '₹' + value;
-          }
-        }
-      }
-    },
+    ],
   };
 
-  // Get summary statistics
-  const getSummaryStats = (period) => {
-    const groupedData = groupExpensesByPeriod(period);
-    const values = Object.values(groupedData);
-    
-    if (values.length === 0) return { total: 0, average: 0, highest: 0, periods: 0 };
-    
-    const total = values.reduce((sum, val) => sum + val, 0);
-    const average = total / values.length;
-    const highest = Math.max(...values);
-    
-    return {
-      total: total.toFixed(2),
-      average: average.toFixed(2),
-      highest: highest.toFixed(2),
-      periods: values.length
-    };
-  };
+  const totalIncome = Object.values(incomeMap).reduce((s, v) => s + v, 0);
+  const totalExpense = Object.values(expenseMap).reduce((s, v) => s + v, 0);
+  const avgExpense = allKeys.length ? totalExpense / allKeys.length : 0;
 
-  if (loading) return <div className="page">Loading time analysis...</div>;
-
-  const currentStats = getSummaryStats(activeTab);
-  const chartData = getChartData(activeTab);
+  if (loading) {
+    return (
+      <div className="page">
+        <h2>Time Analysis</h2>
+        <div className="shimmer" style={{ height: 400, borderRadius: 12 }} />
+      </div>
+    );
+  }
 
   return (
     <div className="page">
-      <h2>Time-Based Expense Analysis</h2>
-      
-      {/* Tab Navigation */}
-      <div style={{ marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', gap: '1rem', borderBottom: '2px solid #eee' }}>
-          {['weekly', 'monthly', 'yearly'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                padding: '10px 20px',
-                border: 'none',
-                borderBottom: activeTab === tab ? '2px solid #0366d6' : '2px solid transparent',
-                background: activeTab === tab ? '#f8f9fa' : 'transparent',
-                cursor: 'pointer',
-                fontWeight: activeTab === tab ? 'bold' : 'normal',
-                color: activeTab === tab ? '#0366d6' : '#666',
-                textTransform: 'capitalize'
-              }}
-            >
-              {tab}
-            </button>
-          ))}
+      <h2>Time Analysis</h2>
+
+      <div className="filter-bar" style={{ borderBottom: '1px solid var(--border-default)', paddingBottom: '0.65rem' }}>
+        {['weekly', 'monthly', 'yearly'].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={tab === activeTab ? 'primary-btn' : 'secondary-btn'}
+            style={{ textTransform: 'capitalize' }}
+          >{tab}</button>
+        ))}
+      </div>
+
+      <div className="summary-cards stagger-children" style={{ marginTop: '1.25rem' }}>
+        <div className="stat-card stat-income">
+          <div className="stat-label">Total Income</div>
+          <div className="stat-value">₹{totalIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+        </div>
+        <div className="stat-card stat-expense">
+          <div className="stat-label">Total Expenses</div>
+          <div className="stat-value">₹{totalExpense.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+        </div>
+        <div className="stat-card stat-balance">
+          <div className="stat-label">Avg / Period</div>
+          <div className="stat-value">₹{avgExpense.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+        </div>
+        <div className="stat-card stat-txns">
+          <div className="stat-label">Periods</div>
+          <div className="stat-value">{allKeys.length}</div>
         </div>
       </div>
 
-      {/* Summary Statistics */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-        <div className="card" style={{ flex: 1, minWidth: '200px' }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#666' }}>Total Expenses</h4>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#e74c3c' }}>
-            ₹{currentStats.total}
-          </div>
-        </div>
-        <div className="card" style={{ flex: 1, minWidth: '200px' }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#666' }}>Average Per {activeTab.slice(0, -2)}</h4>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f39c12' }}>
-            ₹{currentStats.average}
-          </div>
-        </div>
-        <div className="card" style={{ flex: 1, minWidth: '200px' }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#666' }}>Highest {activeTab.slice(0, -2)}</h4>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#e67e22' }}>
-            ₹{currentStats.highest}
-          </div>
-        </div>
-        <div className="card" style={{ flex: 1, minWidth: '200px' }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#666' }}>Total Periods</h4>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#3498db' }}>
-            {currentStats.periods}
-          </div>
-        </div>
-      </div>
-
-      {/* Chart */}
-      <div style={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-        {chartData.labels.length > 0 ? (
-          <Line data={chartData} options={chartOptions} />
+      <div
+        ref={chartReveal.ref}
+        className={`chart-card scroll-reveal ${chartReveal.isVisible ? 'visible' : ''}`}
+        style={{ marginTop: '1.25rem' }}
+      >
+        {allKeys.length > 0 ? (
+          <Line data={chartData} options={{
+            responsive: true,
+            animation: { duration: 700 },
+            plugins: {
+              legend: { position: 'bottom', labels: { color: legendColor, boxWidth: 10, padding: 14 } },
+              tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ₹${ctx.parsed.y.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` } }
+            },
+            scales: {
+              x: { ticks: { color: tickColor }, grid: { display: false } },
+              y: { beginAtZero: true, ticks: { color: tickColor, callback: v => '₹' + v.toLocaleString('en-IN') }, grid: { color: gridColor } }
+            }
+          }} />
         ) : (
-          <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
-            <p>No expense data available for {activeTab} analysis.</p>
-            <p>Add some expenses to see trends over time.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Data Table */}
-      <div style={{ marginTop: '2rem', backgroundColor: 'white', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-        <h3>Detailed Breakdown</h3>
-        {chartData.labels.length > 0 ? (
-          <table style={{ width: '100%' }}>
-            <thead>
-              <tr>
-                <th>Period</th>
-                <th>Total Expenses</th>
-                <th>% of Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {chartData.labels.map((label, index) => {
-                const amount = chartData.datasets[0].data[index];
-                const percentage = ((amount / currentStats.total) * 100).toFixed(1);
-                return (
-                  <tr key={label}>
-                    <td>{label}</td>
-                    <td>₹{amount.toFixed(2)}</td>
-                    <td>{percentage}%</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        ) : (
-          <p>No data to display.</p>
+          <div className="empty-state"><p>No data for {activeTab} analysis.</p></div>
         )}
       </div>
     </div>

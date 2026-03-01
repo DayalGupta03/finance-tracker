@@ -1,57 +1,68 @@
 [
   {
-    "id": 1753105216152,
-    "amount": 500,
-    "type": "income",
+    "id": 1757324033813,
+    "amount": 166,
+    "type": "expense",
+    "category": "food",
+    "date": "2025-09-03",
+    "description": "punjabi rasoi",
+    "created_at": "2025-09-08T09:33:53.813Z",
+    "updated_at": "2025-09-08T09:43:28.563Z"
+  },
+  {
+    "id": 1757324107344,
+    "amount": 130,
+    "type": "expense",
+    "category": "Mess",
+    "date": "2025-09-02",
+    "description": "Mess(3 baar ka mila ke)",
+    "created_at": "2025-09-08T09:35:07.344Z",
+    "updated_at": "2025-09-08T09:43:46.297Z"
+  },
+  {
+    "id": 1757324153162,
+    "amount": 343,
+    "type": "expense",
+    "category": "jioMart",
+    "date": "2025-09-04",
+    "description": "groceries",
+    "created_at": "2025-09-08T09:35:53.162Z",
+    "updated_at": "2025-09-08T09:43:56.516Z"
+  },
+  {
+    "id": 1757324288863,
+    "amount": 212.5,
+    "type": "expense",
+    "category": "Food",
+    "date": "2025-09-07",
+    "description": "Wrap",
+    "created_at": "2025-09-08T09:38:08.863Z"
+  },
+  {
+    "id": 1757324323677,
+    "amount": 72.5,
+    "type": "expense",
+    "category": "Food",
+    "date": "2025-09-06",
+    "description": "Cake",
+    "created_at": "2025-09-08T09:38:43.677Z"
+  },
+  {
+    "id": 1757324380428,
+    "amount": 12,
+    "type": "expense",
+    "category": "food",
+    "date": "2025-09-03",
+    "description": "coffee",
+    "created_at": "2025-09-08T09:39:40.428Z"
+  },
+  {
+    "id": 1757324434013,
+    "amount": 100,
+    "type": "expense",
     "category": "Misc",
-    "date": "2025-07-17",
-    "description": "salary",
-    "created_at": "2025-07-21T13:40:16.152Z",
-    "updated_at": "2025-07-21T13:40:27.296Z"
-  },
-  {
-    "id": 1753117794390,
-    "amount": 15000,
-    "type": "income",
-    "category": "income",
-    "date": "2025-07-21",
-    "description": "profit",
-    "created_at": "2025-07-21T17:09:54.390Z"
-  },
-  {
-    "id": 1753119609542,
-    "amount": 1233,
-    "type": "expense",
-    "category": "cloth",
-    "date": "2025-07-20",
-    "description": "clothes",
-    "created_at": "2025-07-21T17:40:09.542Z"
-  },
-  {
-    "id": 1753171579864,
-    "amount": 2000,
-    "type": "expense",
-    "category": "fuel",
-    "date": "2025-07-21",
-    "description": "fuel ",
-    "created_at": "2025-07-22T08:06:19.864Z"
-  },
-  {
-    "id": 1753376075351,
-    "amount": 1222,
-    "type": "expense",
-    "category": "Toys",
-    "date": "2025-07-23",
-    "description": "Fun",
-    "created_at": "2025-07-24T16:54:35.351Z"
-  },
-  {
-    "id": 1753430684821,
-    "amount": 1200,
-    "type": "expense",
-    "category": "Misc",
-    "date": "2025-07-24",
-    "description": "food",
-    "created_at": "2025-07-25T08:04:44.821Z"
+    "date": "2025-09-04",
+    "description": "Harsh Kumar",
+    "created_at": "2025-09-08T09:40:34.013Z"
   }
 ]
