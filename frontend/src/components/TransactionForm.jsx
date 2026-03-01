@@ -12,6 +12,15 @@ const CATEGORY_ICONS = {
 
 const blank = { amount: '', type: 'expense', category: 'Food', date: '', description: '' };
 
+// Today in local YYYY-MM-DD (not UTC, so picker max works correctly in IST)
+function localToday() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 export default function TransactionForm() {
   const { id } = useParams();
   const [data, setData] = useState(blank);
@@ -19,6 +28,7 @@ export default function TransactionForm() {
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const toast = useToast();
+  const today = localToday();
 
   useEffect(() => {
     fetchCategories().then(r => setCategories(r.data)).catch(() => { });
@@ -31,15 +41,22 @@ export default function TransactionForm() {
     }
   }, [id]);
 
-  const change = e => {
-    setData({ ...data, [e.target.name]: e.target.value });
-  };
+  const change = e => setData({ ...data, [e.target.name]: e.target.value });
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!data.description.trim()) return toast.error('Description is required');
-    if (!data.amount || data.amount <= 0) return toast.error('Enter a valid amount');
-    if (!data.date) return toast.error('Date is required');
+
+    // --- Validations ---
+    if (!data.description.trim())
+      return toast.error('Description is required');
+    if (data.description.trim().length < 2)
+      return toast.error('Description is too short');
+    if (!data.amount || Number(data.amount) <= 0)
+      return toast.error('Enter a valid amount greater than 0');
+    if (!data.date)
+      return toast.error('Date is required');
+    if (data.date > today)
+      return toast.error('Date cannot be in the future');
 
     setLoading(true);
     try {
@@ -136,9 +153,13 @@ export default function TransactionForm() {
             type="date"
             value={data.date?.substring(0, 10)}
             onChange={change}
+            max={today}
             required
             disabled={loading}
           />
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 4 }}>
+            Cannot be a future date
+          </span>
         </div>
 
         <button type="submit" className="auth-btn" disabled={loading} style={{ marginTop: 8 }}>

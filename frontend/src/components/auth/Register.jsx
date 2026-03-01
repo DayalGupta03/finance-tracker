@@ -29,9 +29,13 @@ export default function Register() {
         }
         setLoading(true);
         try {
-            await register(name, email, password);
-            toast.success('Account created successfully!');
-            nav('/');
+            const data = await register(name, email, password);
+            toast.success('Verification code sent to your email!');
+            // Navigate to OTP verification screen
+            nav('/verify-otp', {
+                state: { email, previewUrl: data?.previewUrl },
+                replace: true,
+            });
         } catch (err) {
             toast.error(err.response?.data?.error || 'Registration failed');
         } finally {

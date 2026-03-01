@@ -6,6 +6,7 @@ import { useScrollProgress } from './hooks/useScrollEffects';
 import Sidebar from './components/layout/Sidebar';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import VerifyOTP from './components/auth/VerifyOTP';
 import Dashboard from './components/Dashboard';
 import TransactionList from './components/TransactionList';
 import TransactionForm from './components/TransactionForm';
@@ -38,6 +39,7 @@ function AppRoutes() {
         {/* Public routes */}
         <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
         <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <Register />} />
+        <Route path="/verify-otp" element={isAuthenticated ? <Navigate to="/" replace /> : <VerifyOTP />} />
 
         {/* Protected routes */}
         <Route path="/*" element={

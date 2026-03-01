@@ -1,6 +1,6 @@
 /**
  * AuthContext — JWT-based authentication state management.
- * Stores token in localStorage, exposes login/logout/register helpers.
+ * Stores token in localStorage, exposes login/logout/register/verifyOtp/resendOtp helpers.
  */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from '../api';
@@ -16,13 +16,11 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         if (token) {
             try {
-                // JWT payload is base64-encoded in the second segment
                 const payload = JSON.parse(atob(token.split('.')[1]));
                 const storedUser = JSON.parse(localStorage.getItem('ft_user') || 'null');
                 if (payload.exp * 1000 > Date.now() && storedUser) {
                     setUser(storedUser);
                 } else {
-                    // Token expired
                     logout();
                 }
             } catch {
@@ -45,11 +43,25 @@ export function AuthProvider({ children }) {
         return res.data;
     }, [saveAuth]);
 
+    // Register: does NOT auto-save token (user is unverified)
     const register = useCallback(async (name, email, password) => {
         const res = await api.post('/api/auth/register', { name, email, password });
+        // Returns { message, email, previewUrl? } — no token
+        return res.data;
+    }, []);
+
+    // Verify OTP: saves token on success
+    const verifyOtp = useCallback(async (email, otp) => {
+        const res = await api.post('/api/auth/verify-otp', { email, otp });
         saveAuth(res.data.token, res.data.user);
         return res.data;
     }, [saveAuth]);
+
+    // Resend OTP
+    const resendOtp = useCallback(async (email) => {
+        const res = await api.post('/api/auth/resend-otp', { email });
+        return res.data;
+    }, []);
 
     const logout = useCallback(() => {
         localStorage.removeItem('ft_token');
@@ -65,6 +77,8 @@ export function AuthProvider({ children }) {
         loading,
         login,
         register,
+        verifyOtp,
+        resendOtp,
         logout,
     };
 

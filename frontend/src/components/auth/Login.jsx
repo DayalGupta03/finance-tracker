@@ -23,7 +23,14 @@ export default function Login() {
             toast.success('Welcome back!');
             nav('/');
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Login failed');
+            const data = err.response?.data;
+            // If user hasn't verified email, redirect to OTP screen
+            if (data?.needsVerification) {
+                toast.error('Please verify your email first');
+                nav('/verify-otp', { state: { email: data.email }, replace: true });
+                return;
+            }
+            toast.error(data?.error || 'Login failed');
         } finally {
             setLoading(false);
         }

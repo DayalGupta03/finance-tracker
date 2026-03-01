@@ -1838,3 +1838,175 @@ canvas {
 nav.top-nav {
   display: none;
 }
+
+/* ─── OTP Verification ─────────────────────────────────── */
+.otp-inputs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1.25rem 0;
+}
+
+.otp-input {
+  width: 48px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg-input);
+  border: 2px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  caret-color: var(--accent-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.otp-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-focus);
+  background: var(--bg-input-focus);
+}
+
+.otp-footer {
+  text-align: center;
+  margin-top: 1.25rem;
+}
+
+.otp-footer p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.resend-btn {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.resend-btn:hover:not(:disabled) {
+  background: var(--accent-primary-soft);
+}
+
+.resend-btn:disabled {
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+/* ─── Stock Search Dropdown ────────────────────────────── */
+.stock-search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.stock-search-input {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-input);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.85rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.stock-search-input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-focus);
+  background: var(--bg-input-focus);
+}
+
+.stock-search-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.stock-search-item {
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background var(--transition-fast);
+}
+
+.stock-search-item:last-child {
+  border-bottom: none;
+}
+
+.stock-search-item:hover,
+.stock-search-item.highlighted {
+  background: var(--accent-primary-soft);
+}
+
+.stock-search-item .stock-symbol {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+}
+
+.stock-search-item .stock-name {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin-top: 1px;
+}
+
+.stock-search-item .stock-exchange {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.stock-search-loading,
+.stock-search-empty {
+  padding: 0.8rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.stock-refresh-btn {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.stock-refresh-btn:hover {
+  background: var(--accent-primary-soft);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.stock-refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -27,14 +27,19 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('ft_token');
       localStorage.removeItem('ft_user');
-      // Redirect to login if not already there
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+      if (window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/verify-otp') {
         window.location.href = '/login';
       }
     }
     return Promise.reject(error);
   }
 );
+
+// ── Auth API ────────────────────────────────────────────
+export const registerUser = (data) => api.post('/api/auth/register', data);
+export const loginUser = (data) => api.post('/api/auth/login', data);
+export const verifyOTP = (email, otp) => api.post('/api/auth/verify-otp', { email, otp });
+export const resendOTP = (email) => api.post('/api/auth/resend-otp', { email });
 
 // ── Transaction API ─────────────────────────────────────
 export const fetchTxns = (params = {}) => api.get('/api/transactions', { params });
@@ -57,5 +62,7 @@ export const addStock = (data) => api.post('/api/stocks', data);
 export const updateStock = (id, data) => api.put(`/api/stocks/${id}`, data);
 export const deleteStock = (id) => api.delete(`/api/stocks/${id}`);
 export const getStockPrices = (symbols) => api.post('/api/stocks/prices', { symbols });
+export const searchStocks = (query) => api.get('/api/stocks/search', { params: { q: query } });
+export const getStockQuote = (symbol) => api.get(`/api/stocks/quote/${symbol}`);
 
 export default api;

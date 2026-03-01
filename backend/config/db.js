@@ -28,6 +28,11 @@ db.exec(`
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     name TEXT NOT NULL,
+    is_verified INTEGER DEFAULT 0,
+    otp_hash TEXT,
+    otp_expires_at TEXT,
+    otp_attempts INTEGER DEFAULT 0,
+    last_otp_sent TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   );
 
@@ -67,6 +72,37 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_budgets_user ON budgets(user_id);
   CREATE INDEX IF NOT EXISTS idx_stocks_user ON stocks(user_id);
 `);
+
+// ── Migration: add OTP columns to existing users table ──
+// Safe to run repeatedly — uses try/catch for "duplicate column" errors
+const otpColumns = [
+  { name: 'is_verified', sql: 'ALTER TABLE users ADD COLUMN is_verified INTEGER DEFAULT 0' },
+  { name: 'otp_hash', sql: 'ALTER TABLE users ADD COLUMN otp_hash TEXT' },
+  { name: 'otp_expires_at', sql: 'ALTER TABLE users ADD COLUMN otp_expires_at TEXT' },
+  { name: 'otp_attempts', sql: 'ALTER TABLE users ADD COLUMN otp_attempts INTEGER DEFAULT 0' },
+  { name: 'last_otp_sent', sql: 'ALTER TABLE users ADD COLUMN last_otp_sent TEXT' },
+];
+
+for (const col of otpColumns) {
+  try {
+    db.exec(col.sql);
+    console.log(`  ✓ Added column: users.${col.name}`);
+  } catch (e) {
+    // Column already exists — ignore
+  }
+}
+
+// Mark all EXISTING users as verified (one-time migration only)
+// Uses a migration_flags table to ensure this only runs once
+db.exec('CREATE TABLE IF NOT EXISTS migration_flags (name TEXT PRIMARY KEY)');
+const migrated = db.prepare("SELECT 1 FROM migration_flags WHERE name = 'otp_verify_existing_users'").get();
+if (!migrated) {
+  const result = db.prepare('UPDATE users SET is_verified = 1 WHERE is_verified IS NULL OR is_verified = 0').run();
+  db.prepare("INSERT INTO migration_flags (name) VALUES ('otp_verify_existing_users')").run();
+  if (result.changes > 0) {
+    console.log(`  ✓ Migrated ${result.changes} existing user(s) to verified status`);
+  }
+}
 
 console.log('✅ Database initialized at', dbPath);
 
