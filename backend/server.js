@@ -47,9 +47,12 @@ app.get('/api/health', (req, res) => {
 
 // ── Serve Frontend in Production ────────────────────────
 const path = require('path');
+
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
-app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+
+// ✅ Express 5 correct catch-all
+app.use((req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
 // ── Global error handler ────────────────────────────────
