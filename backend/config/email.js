@@ -16,22 +16,18 @@ async function getTransporter() {
   if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
     });
-    // Verify connection on startup
-    try {
-      await transporter.verify();
-      console.log('📧 Email transport: Gmail (%s) — verified ✓', process.env.EMAIL_USER);
-    } catch (err) {
-      console.error('📧 Gmail SMTP verification FAILED:', err.message);
-      console.error('   Check EMAIL_USER and EMAIL_PASS env vars');
-      // Don't null-out the transporter — let it try anyway
-    }
+    console.log('📧 Email transport: Gmail (%s) on port 587', process.env.EMAIL_USER);
     return transporter;
   }
 
