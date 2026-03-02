@@ -4,7 +4,7 @@
  */
 import axios from 'axios';
 
-const API_BASE = 'http://localhost:4000';
+export const API_BASE = import.meta.env.VITE_API_URL || '';
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -35,7 +35,7 @@ api.interceptors.response.use(
   }
 );
 
-// ── Auth API ────────────────────────────────────────────
+// ── Auth API (Public — uses same baseURL) ───────────────
 export const registerUser = (data) => api.post('/api/auth/register', data);
 export const loginUser = (data) => api.post('/api/auth/login', data);
 export const verifyOTP = (email, otp) => api.post('/api/auth/verify-otp', { email, otp });
