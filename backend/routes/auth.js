@@ -87,7 +87,7 @@ router.post(
         if (process.env.SKIP_EMAIL_VERIFICATION === 'true') {
             // Auto-verify and return token immediately
             db.prepare('UPDATE users SET is_verified = 1 WHERE id = ?').run(userId);
-            const token = jwt.sign({ id: userId, email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+            const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
             console.log('✅ Auto-verified user %s (email verification skipped)', email);
             return res.status(201).json({
                 message: 'Account created successfully!',
@@ -116,7 +116,7 @@ router.post(
             console.error('❌ Email send failed for %s:', email, err.message);
             // Fallback: auto-verify if email fails
             db.prepare('UPDATE users SET is_verified = 1 WHERE id = ?').run(userId);
-            const token = jwt.sign({ id: userId, email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+            const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
             console.log('⚠️ Email failed — auto-verified user %s as fallback', email);
             res.status(201).json({
                 message: 'Account created successfully!',
