@@ -43,12 +43,15 @@ export function AuthProvider({ children }) {
         return res.data;
     }, [saveAuth]);
 
-    // Register: does NOT auto-save token (user is unverified)
+    // Register: might auto-verify (returns token) or require OTP (no token)
     const register = useCallback(async (name, email, password) => {
         const res = await api.post('/api/auth/register', { name, email, password });
-        // Returns { message, email, previewUrl? } — no token
+        // If server skipped email verification, save auth immediately
+        if (res.data.token) {
+            saveAuth(res.data.token, res.data.user);
+        }
         return res.data;
-    }, []);
+    }, [saveAuth]);
 
     // Verify OTP: saves token on success
     const verifyOtp = useCallback(async (email, otp) => {

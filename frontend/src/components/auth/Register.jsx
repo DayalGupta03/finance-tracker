@@ -30,12 +30,18 @@ export default function Register() {
         setLoading(true);
         try {
             const data = await register(name, email, password);
-            toast.success('Verification code sent to your email!');
-            // Navigate to OTP verification screen
-            nav('/verify-otp', {
-                state: { email, previewUrl: data?.previewUrl },
-                replace: true,
-            });
+            if (data.token) {
+                // Email verification skipped — user is auto-verified
+                toast.success('Account created successfully!');
+                nav('/', { replace: true });
+            } else {
+                // Normal OTP flow
+                toast.success('Verification code sent to your email!');
+                nav('/verify-otp', {
+                    state: { email, previewUrl: data?.previewUrl },
+                    replace: true,
+                });
+            }
         } catch (err) {
             toast.error(err.response?.data?.error || 'Registration failed');
         } finally {

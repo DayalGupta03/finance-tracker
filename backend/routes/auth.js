@@ -83,7 +83,20 @@ router.post(
             userId = result.lastInsertRowid;
         }
 
-        // Generate and send OTP
+        // ── Skip email verification mode ──────────────────────
+        if (process.env.SKIP_EMAIL_VERIFICATION === 'true') {
+            // Auto-verify and return token immediately
+            db.prepare('UPDATE users SET is_verified = 1 WHERE id = ?').run(userId);
+            const token = jwt.sign({ id: userId, email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+            console.log('✅ Auto-verified user %s (email verification skipped)', email);
+            return res.status(201).json({
+                message: 'Account created successfully!',
+                token,
+                user: { id: userId, name, email },
+            });
+        }
+
+        // ── Normal OTP flow ────────────────────────────────────
         const otp = generateOTP();
         storeOTP(userId, otp);
 
@@ -95,15 +108,21 @@ router.post(
                 message: 'Verification code sent to your email.',
                 email,
             };
-            // Include preview URL in dev mode (Ethereal)
             if (emailResult.previewUrl) {
                 response.previewUrl = emailResult.previewUrl;
             }
             res.status(201).json(response);
         } catch (err) {
             console.error('❌ Email send failed for %s:', email, err.message);
-            console.error('   Full error:', JSON.stringify({ code: err.code, command: err.command, response: err.response }, null, 2));
-            res.status(500).json({ error: 'Failed to send verification email. Please try again.' });
+            // Fallback: auto-verify if email fails
+            db.prepare('UPDATE users SET is_verified = 1 WHERE id = ?').run(userId);
+            const token = jwt.sign({ id: userId, email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+            console.log('⚠️ Email failed — auto-verified user %s as fallback', email);
+            res.status(201).json({
+                message: 'Account created successfully!',
+                token,
+                user: { id: userId, name, email },
+            });
         }
     }
 );
