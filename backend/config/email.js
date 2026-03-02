@@ -10,36 +10,46 @@ let transporter = null;
 let etherealAccount = null;
 
 async function getTransporter() {
-    if (transporter) return transporter;
+  if (transporter) return transporter;
 
-    // If real credentials provided, use them (Gmail / any SMTP)
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
-        console.log('📧 Email transport: Gmail (%s)', process.env.EMAIL_USER);
-        return transporter;
-    }
-
-    // Fallback: Ethereal (fake SMTP — preview emails in browser)
-    etherealAccount = await nodemailer.createTestAccount();
+  // If real credentials provided, use them (Gmail / any SMTP)
+  if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
     transporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-            user: etherealAccount.user,
-            pass: etherealAccount.pass,
-        },
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
     });
-    console.log('📧 Email transport: Ethereal (dev mode)');
-    console.log('   Preview inbox: https://ethereal.email/login');
-    console.log('   User: %s | Pass: %s', etherealAccount.user, etherealAccount.pass);
+    // Verify connection on startup
+    try {
+      await transporter.verify();
+      console.log('📧 Email transport: Gmail (%s) — verified ✓', process.env.EMAIL_USER);
+    } catch (err) {
+      console.error('📧 Gmail SMTP verification FAILED:', err.message);
+      console.error('   Check EMAIL_USER and EMAIL_PASS env vars');
+      // Don't null-out the transporter — let it try anyway
+    }
     return transporter;
+  }
+
+  // Fallback: Ethereal (fake SMTP — preview emails in browser)
+  etherealAccount = await nodemailer.createTestAccount();
+  transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    secure: false,
+    auth: {
+      user: etherealAccount.user,
+      pass: etherealAccount.pass,
+    },
+  });
+  console.log('📧 Email transport: Ethereal (dev mode)');
+  console.log('   Preview inbox: https://ethereal.email/login');
+  console.log('   User: %s | Pass: %s', etherealAccount.user, etherealAccount.pass);
+  return transporter;
 }
 
 /**
@@ -49,9 +59,9 @@ async function getTransporter() {
  * @param {string} name - user's name for personalization
  */
 async function sendOTP(to, otp, name = 'User') {
-    const transport = await getTransporter();
+  const transport = await getTransporter();
 
-    const html = `
+  const html = `
     <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #f8f9fb; border-radius: 12px;">
       <div style="text-align: center; margin-bottom: 24px;">
         <span style="font-size: 40px;">💰</span>
@@ -70,21 +80,21 @@ async function sendOTP(to, otp, name = 'User') {
     </div>
   `;
 
-    const info = await transport.sendMail({
-        from: `"FinTrack" <${process.env.EMAIL_USER || etherealAccount?.user || 'noreply@fintrack.app'}>`,
-        to,
-        subject: `${otp} is your FinTrack verification code`,
-        html,
-    });
+  const info = await transport.sendMail({
+    from: `"FinTrack" <${process.env.EMAIL_USER || etherealAccount?.user || 'noreply@fintrack.app'}>`,
+    to,
+    subject: `${otp} is your FinTrack verification code`,
+    html,
+  });
 
-    // Log Ethereal preview URL in dev mode
-    if (etherealAccount) {
-        const preview = nodemailer.getTestMessageUrl(info);
-        console.log('📬 OTP email preview: %s', preview);
-        return { messageId: info.messageId, previewUrl: preview };
-    }
+  // Log Ethereal preview URL in dev mode
+  if (etherealAccount) {
+    const preview = nodemailer.getTestMessageUrl(info);
+    console.log('📬 OTP email preview: %s', preview);
+    return { messageId: info.messageId, previewUrl: preview };
+  }
 
-    return { messageId: info.messageId };
+  return { messageId: info.messageId };
 }
 
 module.exports = { sendOTP, getTransporter };

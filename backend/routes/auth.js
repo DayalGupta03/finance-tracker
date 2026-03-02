@@ -101,7 +101,8 @@ router.post(
             }
             res.status(201).json(response);
         } catch (err) {
-            console.error('Email send failed:', err.message);
+            console.error('❌ Email send failed for %s:', email, err.message);
+            console.error('   Full error:', JSON.stringify({ code: err.code, command: err.command, response: err.response }, null, 2));
             res.status(500).json({ error: 'Failed to send verification email. Please try again.' });
         }
     }
